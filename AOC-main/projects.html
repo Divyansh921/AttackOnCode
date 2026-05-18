@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects — Attack on Code</title>
+  <meta name="description" content="Explore projects built by Attack on Code teams. Filter by status, tech stack, and contributor needs.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 20px;
+      padding-bottom: 80px;
+    }
+    .project-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .project-card:hover { border-color: var(--border-dark); box-shadow: var(--shadow-md); }
+    .pj-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .pj-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+    .pj-team { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 4px; }
+    .pj-team i { font-size: 14px; }
+    .pj-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 18px; }
+    .pj-links { display: flex; gap: 10px; margin-bottom: 18px; }
+    .pj-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 500; color: var(--text-secondary);
+      transition: var(--transition-fast);
+    }
+    .pj-link:hover { background: var(--surface); color: var(--text-primary); border-color: var(--border-dark); }
+    .pj-link i { font-size: 16px; }
+    .pj-progress { margin-bottom: 18px; }
+    .pj-progress-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .pj-progress-bar { height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden; }
+    .pj-progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    .pj-progress-fill.active { background: var(--green); }
+    .pj-progress-fill.paused { background: var(--yellow); }
+    .pj-progress-fill.completed { background: var(--blue); }
+    .pj-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+    .pj-contributors { display: flex; align-items: center; gap: 8px; }
+    .pj-contributor-flag {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12px; font-weight: 600; color: var(--red);
+      padding: 4px 10px; background: var(--red-light); border-radius: var(--radius-full);
+    }
+    .pj-contributor-flag i { font-size: 14px; }
+
+    @media (max-width: 600px) {
+      .project-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="index.html" class="nav-logo">
+          <div class="nav-logo-icon"><i class="ti ti-code"></i></div>
+          <span class="nav-logo-text">Attack on Code</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="builders.html">Builders</a>
+          <a href="teams.html">Teams</a>
+          <a href="hackathons.html">Hackathons</a>
+          <a href="projects.html" class="active">Projects</a>
+          <a href="missions.html">Missions</a>
+          <a href="community.html">Community</a>
+          <a href="about.html">About</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <a href="login.html" class="btn btn-ghost">Log in</a>
+        <a href="register.html" class="btn btn-primary">Join Community</a>
+        <button class="nav-mobile-toggle" id="nav-mobile-toggle"><i class="ti ti-menu-2"></i></button>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-mobile-menu" id="nav-mobile-menu">
+    <a href="index.html">Home</a><a href="builders.html">Builders</a><a href="teams.html">Teams</a>
+    <a href="hackathons.html">Hackathons</a><a href="projects.html">Projects</a><a href="missions.html">Missions</a>
+    <a href="community.html">Community</a><a href="about.html">About</a>
+  </div>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>Project Showcase</h1>
+      <p>Explore projects built by Attack on Code teams. Contribute, learn, and get inspired.</p>
+    </div>
+
+    <div class="filter-bar" data-single="true">
+      <div class="search-box">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="Search projects...">
+      </div>
+      <button class="filter-pill active">All</button>
+      <button class="filter-pill">Active</button>
+      <button class="filter-pill">Completed</button>
+      <button class="filter-pill">Paused</button>
+      <button class="filter-pill">Needs Contributors</button>
+    </div>
+
+    <div class="project-grid">
+
+      <!-- Project 1 -->
+      <div class="project-card fade-in">
+        <div class="pj-top">
+          <span class="pj-name">CampusSync</span>
+          <span class="badge badge-green">Active</span>
+        </div>
+        <div class="pj-team"><i class="ti ti-users-group"></i> QuantumForge</div>
+        <p class="pj-desc">University event management platform with real-time notifications, calendar sync, and attendance tracking.</p>
+        <div class="tags" style="margin-bottom:18px;">
+          <span class="tag">Next.js</span><span class="tag">Node.js</span><span class="tag">PostgreSQL</span><span class="tag">Redis</span>
+        </div>
+        <div class="pj-links">
+          <a href="#" class="pj-link"><i class="ti ti-brand-github"></i> GitHub</a>
+          <a href="#" class="pj-link"><i class="ti ti-external-link"></i> Live Demo</a>
+        </div>
+        <div class="pj-progress">
+          <div class="pj-progress-label">
+            <span>Progress</span><span>72%</span>
+          </div>
+          <div class="pj-progress-bar"><div class="pj-progress-fill active" style="width:72%"></div></div>
+        </div>
+        <div class="pj-footer">
+          <div class="pj-contributors">
+            <div class="avatar-stack">
+              <div class="avatar-circle av-red">AS</div>
+              <div class="avatar-circle av-blue">PG</div>
+              <div class="avatar-circle av-green">RM</div>
+            </div>
+          </div>
+          <span class="pj-contributor-flag"><i class="ti ti-user-plus"></i> Needs Contributors</span>
+        </div>
+      </div>
+
+      <!-- Project 2 -->
+      <div class="project-card fade-in">
+        <div class="pj-top">
+          <span class="pj-name">StudyBuddy</span>
+          <span class="badge badge-blue">Completed</span>
+        </div>
+        <div class="pj-team"><i class="ti ti-users-group"></i> CodeForge</div>
+        <p class="pj-desc">AI-powered study companion with flashcard generation, spaced repetition, and collaborative notes.</p>
+        <div class="tags" style="margin-bottom:18px;">
+          <span class="tag">React</span><span class="tag">Python</span><span class="tag">OpenAI</span><span class="tag">Supabase</span>
+        </div>
+        <div class="pj-links">
+          <a href="#" class="pj-link"><i class="ti ti-brand-github"></i> GitHub</a>
+          <a href="#" class="pj-link"><i class="ti ti-external-link"></i> Live Demo</a>
+        </div>
+        <div class="pj-progress">
+          <div class="pj-progress-label">
+            <span>Progress</span><span>100%</span>
+          </div>
+          <div class="pj-progress-bar"><div class="pj-progress-fill completed" style="width:100%"></div></div>
+        </div>
+        <div class="pj-footer">
+          <div class="pj-contributors">
+            <div class="avatar-stack">
+              <div class="avatar-circle av-yellow">VT</div>
+              <div class="avatar-circle av-red">AK</div>
+              <div class="avatar-circle av-blue">SD</div>
+              <div class="avatar-circle av-green">NK</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 3 -->
+      <div class="project-card fade-in">
+        <div class="pj-top">
+          <span class="pj-name">GreenTrail</span>
+          <span class="badge badge-green">Active</span>
+        </div>
+        <div class="pj-team"><i class="ti ti-users-group"></i> EcoTrack</div>
+        <p class="pj-desc">Campus carbon footprint tracker with gamification, challenges, and sustainability leaderboards.</p>
+        <div class="tags" style="margin-bottom:18px;">
+          <span class="tag">Vue.js</span><span class="tag">Django</span><span class="tag">D3.js</span><span class="tag">PostgreSQL</span>
+        </div>
+        <div class="pj-links">
+          <a href="#" class="pj-link"><i class="ti ti-brand-github"></i> GitHub</a>
+        </div>
+        <div class="pj-progress">
+          <div class="pj-progress-label">
+            <span>Progress</span><span>35%</span>
+          </div>
+          <div class="pj-progress-bar"><div class="pj-progress-fill active" style="width:35%"></div></div>
+        </div>
+        <div class="pj-footer">
+          <div class="pj-contributors">
+            <div class="avatar-stack">
+              <div class="avatar-circle av-green">TK</div>
+            </div>
+          </div>
+          <span class="pj-contributor-flag"><i class="ti ti-user-plus"></i> Needs Contributors</span>
+        </div>
+      </div>
+
+      <!-- Project 4 -->
+      <div class="project-card fade-in">
+        <div class="pj-top">
+          <span class="pj-name">MoodLens</span>
+          <span class="badge badge-green">Active</span>
+        </div>
+        <div class="pj-team"><i class="ti ti-users-group"></i> NeuralPulse</div>
+        <p class="pj-desc">Real-time campus sentiment analysis dashboard using NLP on anonymous student feedback.</p>
+        <div class="tags" style="margin-bottom:18px;">
+          <span class="tag">React</span><span class="tag">Transformers</span><span class="tag">FastAPI</span><span class="tag">MongoDB</span>
+        </div>
+        <div class="pj-links">
+          <a href="#" class="pj-link"><i class="ti ti-brand-github"></i> GitHub</a>
+          <a href="#" class="pj-link"><i class="ti ti-external-link"></i> Live Demo</a>
+        </div>
+        <div class="pj-progress">
+          <div class="pj-progress-label">
+            <span>Progress</span><span>58%</span>
+          </div>
+          <div class="pj-progress-bar"><div class="pj-progress-fill active" style="width:58%"></div></div>
+        </div>
+        <div class="pj-footer">
+          <div class="pj-contributors">
+            <div class="avatar-stack">
+              <div class="avatar-circle av-blue">RK</div>
+              <div class="avatar-circle av-green">SM</div>
+              <div class="avatar-circle av-yellow">DL</div>
+            </div>
+          </div>
+          <span class="pj-contributor-flag"><i class="ti ti-user-plus"></i> Needs Contributors</span>
+        </div>
+      </div>
+
+      <!-- Project 5 -->
+      <div class="project-card fade-in">
+        <div class="pj-top">
+          <span class="pj-name">AgriScan</span>
+          <span class="badge badge-blue">Completed</span>
+        </div>
+        <div class="pj-team"><i class="ti ti-users-group"></i> AgriVision</div>
+        <p class="pj-desc">Mobile app for farmers to scan crop leaves and get instant disease diagnosis with treatment suggestions.</p>
+        <div class="tags" style="margin-bottom:18px;">
+          <span class="tag">Flutter</span><span class="tag">TensorFlow Lite</span><span class="tag">Firebase</span><span class="tag">Python</span>
+        </div>
+        <div class="pj-links">
+          <a href="#" class="pj-link"><i class="ti ti-brand-github"></i> GitHub</a>
+          <a href="#" class="pj-link"><i class="ti ti-external-link"></i> Play Store</a>
+        </div>
+        <div class="pj-progress">
+          <div class="pj-progress-label">
+            <span>Progress</span><span>100%</span>
+          </div>
+          <div class="pj-progress-bar"><div class="pj-progress-fill completed" style="width:100%"></div></div>
+        </div>
+        <div class="pj-footer">
+          <div class="pj-contributors">
+            <div class="avatar-stack">
+              <div class="avatar-circle av-green">SD</div>
+              <div class="avatar-circle av-yellow">KS</div>
+              <div class="avatar-circle av-red">MA</div>
+              <div class="avatar-circle av-blue">JP</div>
+              <div class="avatar-circle av-green">RL</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 6 -->
+      <div class="project-card fade-in">
+        <div class="pj-top">
+          <span class="pj-name">CodeReviewAI</span>
+          <span class="badge badge-yellow">Paused</span>
+        </div>
+        <div class="pj-team"><i class="ti ti-users-group"></i> SyntaxStorm</div>
+        <p class="pj-desc">AI-powered code review assistant that auto-detects bugs, suggests refactors, and generates tests.</p>
+        <div class="tags" style="margin-bottom:18px;">
+          <span class="tag">Go</span><span class="tag">LangChain</span><span class="tag">React</span><span class="tag">Redis</span>
+        </div>
+        <div class="pj-links">
+          <a href="#" class="pj-link"><i class="ti ti-brand-github"></i> GitHub</a>
+        </div>
+        <div class="pj-progress">
+          <div class="pj-progress-label">
+            <span>Progress</span><span>22%</span>
+          </div>
+          <div class="pj-progress-bar"><div class="pj-progress-fill paused" style="width:22%"></div></div>
+        </div>
+        <div class="pj-footer">
+          <div class="pj-contributors">
+            <div class="avatar-stack">
+              <div class="avatar-circle av-yellow">PD</div>
+              <div class="avatar-circle av-red">NR</div>
+              <div class="avatar-circle av-blue">AM</div>
+            </div>
+          </div>
+          <span class="pj-contributor-flag"><i class="ti ti-user-plus"></i> Needs Contributors</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <div class="footer-brand-icon"><i class="ti ti-code"></i></div>
+            <span class="footer-brand-name">Attack on Code</span>
+          </div>
+          <p class="footer-desc">The collaborative ecosystem for student builders.</p>
+        </div>
+        <div>
+          <h5 class="footer-title">Platform</h5>
+          <ul class="footer-links">
+            <li><a href="builders.html">Builders</a></li><li><a href="teams.html">Teams</a></li>
+            <li><a href="hackathons.html">Hackathons</a></li><li><a href="projects.html">Projects</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="footer-title">Community</h5>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li><li><a href="missions.html">Missions</a></li>
+            <li><a href="community.html">Community</a></li><li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="footer-title">Connect</h5>
+          <ul class="footer-links">
+            <li><a href="#">Discord</a></li><li><a href="#">GitHub</a></li>
+            <li><a href="#">Twitter/X</a></li><li><a href="#">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Attack on Code. All rights reserved.</span>
+        <div class="footer-social">
+          <a href="#"><i class="ti ti-brand-discord"></i></a>
+          <a href="#"><i class="ti ti-brand-github"></i></a>
+          <a href="#"><i class="ti ti-brand-x"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

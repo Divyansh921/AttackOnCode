@@ -1,0 +1,603 @@
+// ============================================================================
+// ATTACK ON CODE — PRISMA SCHEMA
+// Maps to PostgreSQL schema defined in database/schema.sql
+// ============================================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum AvailabilityStatus {
+  looking_for_team
+  exploring
+  busy
+  inactive
+}
+
+enum ProficiencyLevel {
+  beginner
+  intermediate
+  advanced
+  expert
+}
+
+enum TeamStatus {
+  recruiting
+  active
+  submitted
+  archived
+}
+
+enum TeamVisibility {
+  public
+  invite_only
+  private
+}
+
+enum OpeningStatus {
+  open
+  filled
+  closed
+}
+
+enum HackathonMode {
+  online
+  offline
+  hybrid
+}
+
+enum ParticipationStatus {
+  interested
+  preparing
+  registered
+  participating
+  submitted
+  winner
+  completed
+}
+
+enum ProjectStatus {
+  idea
+  in_development
+  beta
+  live
+  shipped
+  archived
+}
+
+enum ProjectVisibility {
+  public
+  team_only
+  private
+}
+
+enum ActivityType {
+  joined_team
+  left_team
+  created_team
+  created_project
+  joined_project
+  registered_hackathon
+  submitted_hackathon
+  won_hackathon
+  earned_badge
+  updated_profile
+  pushed_commits
+  merged_pr
+  status_changed
+  invited_member
+  applied_to_team
+}
+
+enum EntityType {
+  user
+  team
+  project
+  hackathon
+  badge
+}
+
+enum NotificationType {
+  team_invite
+  team_application
+  application_accepted
+  application_rejected
+  hackathon_reminder
+  hackathon_deadline
+  team_update
+  project_update
+  badge_earned
+  mention
+  system
+}
+
+enum HackathonFrequency {
+  weekly
+  monthly
+  quarterly
+  occasionally
+}
+
+enum SkillCategory {
+  frontend
+  backend
+  fullstack
+  mobile
+  ai_ml
+  data_science
+  devops
+  design
+  blockchain
+  game_dev
+  cybersecurity
+  other
+}
+
+enum ApplicationStatus {
+  pending
+  accepted
+  rejected
+  withdrawn
+}
+
+enum UserRole {
+  user
+  team_leader
+  moderator
+  admin
+}
+
+enum AuditAction {
+  login_success
+  login_failed
+  register
+  logout
+  password_reset_request
+  password_reset_complete
+  email_verified
+  oauth_login
+  session_revoked
+  token_refreshed
+}
+
+// ============================================================================
+// MODULE 1: IDENTITY
+// ============================================================================
+
+model User {
+  id                 String             @id @default(uuid())
+  username           String             @unique
+  fullName           String             @map("full_name")
+  email              String             @unique
+  passwordHash       String?            @map("password_hash")
+  avatarUrl          String?            @map("avatar_url")
+  bio                String?
+  college            String?
+  year               Int?
+  githubUrl          String?            @map("github_url")
+  linkedinUrl        String?            @map("linkedin_url")
+  portfolioUrl       String?            @map("portfolio_url")
+  lookingForTeam     Boolean            @default(false) @map("looking_for_team")
+  availabilityStatus AvailabilityStatus @default(inactive) @map("availability_status")
+  role               UserRole           @default(user)
+  emailVerified      Boolean            @default(false) @map("email_verified")
+  emailVerifyToken   String?            @map("email_verify_token")
+  githubId           String?            @unique @map("github_id")
+  googleId           String?            @unique @map("google_id")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+
+  // Relations
+  skills              UserSkill[]
+  teamMemberships     TeamMember[]
+  teamsLed            Team[]               @relation("TeamLeader")
+  projectMemberships  ProjectMember[]
+  activities          Activity[]
+  stats               UserStats?
+  preferences         UserPreferences?
+  badges              UserBadge[]
+  notifications       Notification[]
+  teamApplications    TeamApplication[]
+  hackathonInterests  UserHackathonInterest[]
+  sessions            Session[]
+  auditLogs           AuditLog[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@index([availabilityStatus])
+  @@index([college])
+  @@index([role])
+  @@map("users")
+}
+
+// ============================================================================
+// MODULE 2: SKILLS
+// ============================================================================
+
+model Skill {
+  id       String        @id @default(uuid())
+  name     String        @unique
+  category SkillCategory
+
+  users UserSkill[]
+
+  @@index([category])
+  @@map("skills")
+}
+
+model UserSkill {
+  userId          String          @map("user_id")
+  skillId         String          @map("skill_id")
+  proficiency     ProficiencyLevel @default(beginner)
+  yearsExperience Float           @default(0) @map("years_experience")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([userId, skillId])
+  @@index([skillId])
+  @@map("user_skills")
+}
+
+// ============================================================================
+// MODULE 3: TEAMS
+// ============================================================================
+
+model Team {
+  id          String         @id @default(uuid())
+  name        String
+  description String?
+  leaderId    String         @map("leader_id")
+  maxMembers  Int            @default(6) @map("max_members")
+  visibility  TeamVisibility @default(public)
+  status      TeamStatus     @default(recruiting)
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  leader    User             @relation("TeamLeader", fields: [leaderId], references: [id])
+  members   TeamMember[]
+  openings  TeamOpening[]
+  hackathons TeamHackathon[]
+  projects  Project[]
+
+  @@index([leaderId])
+  @@index([status])
+  @@map("teams")
+}
+
+model TeamMember {
+  teamId   String   @map("team_id")
+  userId   String   @map("user_id")
+  role     String   @default("member")
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, userId])
+  @@index([userId])
+  @@map("team_members")
+}
+
+// ============================================================================
+// MODULE 4: RECRUITMENT
+// ============================================================================
+
+model TeamOpening {
+  id             String        @id @default(uuid())
+  teamId         String        @map("team_id")
+  title          String
+  description    String?
+  requiredSkills Json          @default("[]") @map("required_skills")
+  slots          Int           @default(1)
+  status         OpeningStatus @default(open)
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  team         Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  applications TeamApplication[]
+
+  @@index([teamId])
+  @@index([status])
+  @@map("team_openings")
+}
+
+model TeamApplication {
+  id         String            @id @default(uuid())
+  openingId  String            @map("opening_id")
+  userId     String            @map("user_id")
+  message    String?
+  status     ApplicationStatus @default(pending)
+  createdAt  DateTime          @default(now()) @map("created_at")
+  reviewedAt DateTime?         @map("reviewed_at")
+
+  opening TeamOpening @relation(fields: [openingId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([openingId, userId])
+  @@index([userId])
+  @@index([status])
+  @@map("team_applications")
+}
+
+// ============================================================================
+// MODULE 5: HACKATHONS
+// ============================================================================
+
+model Hackathon {
+  id                   String       @id @default(uuid())
+  name                 String
+  organizer            String?
+  mode                 HackathonMode @default(offline)
+  location             String?
+  registrationDeadline DateTime?    @map("registration_deadline")
+  startDate            DateTime     @map("start_date")
+  endDate              DateTime     @map("end_date")
+  prizePool            String?      @map("prize_pool")
+  websiteUrl           String?      @map("website_url")
+  description          String?
+  bannerUrl            String?      @map("banner_url")
+  maxTeamSize          Int?         @map("max_team_size")
+  minTeamSize          Int?         @map("min_team_size")
+  themes               Json         @default("[]")
+  createdAt            DateTime     @default(now()) @map("created_at")
+
+  teams     TeamHackathon[]
+  interests UserHackathonInterest[]
+
+  @@index([startDate, endDate])
+  @@map("hackathons")
+}
+
+model TeamHackathon {
+  teamId       String              @map("team_id")
+  hackathonId  String              @map("hackathon_id")
+  projectId    String?             @map("project_id")
+  status       ParticipationStatus @default(interested)
+  registeredAt DateTime            @default(now()) @map("registered_at")
+
+  team      Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  hackathon Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  project   Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@id([teamId, hackathonId])
+  @@index([hackathonId])
+  @@map("team_hackathons")
+}
+
+model UserHackathonInterest {
+  userId       String   @map("user_id")
+  hackathonId  String   @map("hackathon_id")
+  interestedAt DateTime @default(now()) @map("interested_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hackathon Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+
+  @@id([userId, hackathonId])
+  @@map("user_hackathon_interest")
+}
+
+// ============================================================================
+// MODULE 6: PROJECTS
+// ============================================================================
+
+model Project {
+  id          String            @id @default(uuid())
+  name        String
+  description String?
+  githubRepo  String?           @map("github_repo")
+  demoUrl     String?           @map("demo_url")
+  techStack   Json              @default("[]") @map("tech_stack")
+  status      ProjectStatus     @default(idea)
+  ownerTeamId String?           @map("owner_team_id")
+  visibility  ProjectVisibility @default(public)
+  stars       Int               @default(0)
+  forks       Int               @default(0)
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  ownerTeam  Team?           @relation(fields: [ownerTeamId], references: [id], onDelete: SetNull)
+  members    ProjectMember[]
+  needs      ProjectNeed[]
+  hackathons TeamHackathon[]
+
+  @@index([ownerTeamId])
+  @@index([status])
+  @@map("projects")
+}
+
+model ProjectMember {
+  projectId String   @map("project_id")
+  userId    String   @map("user_id")
+  role      String   @default("contributor")
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, userId])
+  @@index([userId])
+  @@map("project_members")
+}
+
+model ProjectNeed {
+  id          String  @id @default(uuid())
+  projectId   String  @map("project_id")
+  roleTitle   String  @map("role_title")
+  description String?
+  skills      Json    @default("[]")
+  isFilled    Boolean @default(false) @map("is_filled")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("project_needs")
+}
+
+// ============================================================================
+// MODULE 7: ACTIVITY
+// ============================================================================
+
+model Activity {
+  id           String       @id @default(uuid())
+  userId       String       @map("user_id")
+  activityType ActivityType @map("activity_type")
+  entityType   EntityType   @map("entity_type")
+  entityId     String       @map("entity_id")
+  metadata     Json         @default("{}")
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([activityType])
+  @@index([entityType, entityId])
+  @@map("activities")
+}
+
+// ============================================================================
+// MODULE 8: REPUTATION
+// ============================================================================
+
+model UserStats {
+  userId            String   @id @map("user_id")
+  xp                Int      @default(0)
+  hackathonsJoined  Int      @default(0) @map("hackathons_joined")
+  projectsCompleted Int      @default(0) @map("projects_completed")
+  wins              Int      @default(0)
+  contributions     Int      @default(0)
+  streakDays        Int      @default(0) @map("streak_days")
+  lastActiveAt      DateTime @default(now()) @map("last_active_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_stats")
+}
+
+model Badge {
+  id          String @id @default(uuid())
+  name        String @unique
+  description String?
+  iconUrl     String? @map("icon_url")
+  xpReward    Int     @default(0) @map("xp_reward")
+  criteria    Json    @default("{}")
+
+  users UserBadge[]
+
+  @@map("badges")
+}
+
+model UserBadge {
+  userId   String   @map("user_id")
+  badgeId  String   @map("badge_id")
+  earnedAt DateTime @default(now()) @map("earned_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, badgeId])
+  @@map("user_badges")
+}
+
+// ============================================================================
+// MODULE 9: MATCHMAKING
+// ============================================================================
+
+model UserPreferences {
+  userId             String             @id @map("user_id")
+  preferredRoles     Json               @default("[]") @map("preferred_roles")
+  preferredTeamSize  Int?               @map("preferred_team_size")
+  interestedDomains  Json               @default("[]") @map("interested_domains")
+  hackathonFrequency HackathonFrequency @default(occasionally) @map("hackathon_frequency")
+  openToMentoring    Boolean            @default(false) @map("open_to_mentoring")
+  preferredMode      HackathonMode      @default(hybrid) @map("preferred_mode")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+// ============================================================================
+// MODULE 10: NOTIFICATIONS
+// ============================================================================
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  message   String?
+  link      String?
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("notifications")
+}
+
+// ============================================================================
+// MODULE 11: SESSIONS & AUTH
+// ============================================================================
+
+model Session {
+  id               String   @id @default(uuid())
+  userId           String   @map("user_id")
+  refreshTokenHash String   @map("refresh_token_hash")
+  deviceInfo       String?  @map("device_info")
+  ipAddress        String?  @map("ip_address")
+  userAgent        String?  @map("user_agent")
+  expiresAt        DateTime @map("expires_at")
+  revoked          Boolean  @default(false)
+  createdAt        DateTime @default(now()) @map("created_at")
+  lastUsedAt       DateTime @default(now()) @map("last_used_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([refreshTokenHash])
+  @@map("sessions")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  tokenHash String   @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@map("password_reset_tokens")
+}
+
+model AuditLog {
+  id        String      @id @default(uuid())
+  userId    String?     @map("user_id")
+  action    AuditAction
+  ipAddress String?     @map("ip_address")
+  userAgent String?     @map("user_agent")
+  metadata  Json        @default("{}")
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}

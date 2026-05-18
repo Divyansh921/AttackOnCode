@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Missions — Attack on Code</title>
+  <meta name="description" content="Take on missions to earn XP, build your reputation, and contribute to the community. From beginner to expert.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .missions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 20px;
+      padding-bottom: 80px;
+    }
+    .mission-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .mission-card:hover { border-color: var(--border-dark); box-shadow: var(--shadow-md); }
+    .mc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .mc-name { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+    .mc-xp {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 13px; font-weight: 700; color: var(--red);
+      padding: 4px 10px; background: var(--red-light); border-radius: var(--radius-full);
+    }
+    .mc-xp i { font-size: 14px; }
+    .mc-category { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 4px; }
+    .mc-category i { font-size: 14px; }
+    .mc-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 18px; }
+    .mc-difficulty { margin-bottom: 18px; }
+    .mc-difficulty-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .mc-difficulty-dots { display: flex; gap: 4px; }
+    .mc-dot { width: 24px; height: 6px; border-radius: 3px; background: var(--border); }
+    .mc-dot.filled { background: var(--red); }
+    .mc-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+    .mc-completions { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+    .mc-completions i { font-size: 14px; }
+    .btn-start {
+      padding: 8px 18px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--white); font-size: 13px; font-weight: 600; color: var(--text-primary);
+      cursor: pointer; transition: var(--transition-fast);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .btn-start:hover { background: var(--red); color: white; border-color: var(--red); }
+    .btn-start i { font-size: 16px; }
+
+    .mission-card.legendary { border-color: var(--red-border); background: linear-gradient(135deg, var(--white) 0%, var(--red-light) 100%); }
+    .mission-card.legendary:hover { border-color: var(--red); }
+
+    .leaderboard { margin-bottom: 48px; }
+    .leaderboard-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .lb-header { padding: 20px 24px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+    .lb-header h3 { font-size: 16px; }
+    .lb-row { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--border-light); transition: background 0.15s; }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-row:hover { background: var(--surface); }
+    .lb-rank { width: 28px; font-size: 14px; font-weight: 700; color: var(--text-muted); text-align: center; }
+    .lb-rank.gold { color: #ca8a04; }
+    .lb-rank.silver { color: #6b7280; }
+    .lb-rank.bronze { color: #b45309; }
+    .lb-info { flex: 1; }
+    .lb-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .lb-stats { font-size: 12px; color: var(--text-muted); }
+    .lb-xp { font-size: 14px; font-weight: 700; color: var(--red); }
+
+    @media (max-width: 600px) {
+      .missions-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="index.html" class="nav-logo">
+          <div class="nav-logo-icon"><i class="ti ti-code"></i></div>
+          <span class="nav-logo-text">Attack on Code</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="builders.html">Builders</a>
+          <a href="teams.html">Teams</a>
+          <a href="hackathons.html">Hackathons</a>
+          <a href="projects.html">Projects</a>
+          <a href="missions.html" class="active">Missions</a>
+          <a href="community.html">Community</a>
+          <a href="about.html">About</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <a href="login.html" class="btn btn-ghost">Log in</a>
+        <a href="register.html" class="btn btn-primary">Join Community</a>
+        <button class="nav-mobile-toggle" id="nav-mobile-toggle"><i class="ti ti-menu-2"></i></button>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-mobile-menu" id="nav-mobile-menu">
+    <a href="index.html">Home</a><a href="builders.html">Builders</a><a href="teams.html">Teams</a>
+    <a href="hackathons.html">Hackathons</a><a href="projects.html">Projects</a><a href="missions.html">Missions</a>
+    <a href="community.html">Community</a><a href="about.html">About</a>
+  </div>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>Missions</h1>
+      <p>Take on missions to earn XP, build your reputation, and contribute to the Attack on Code community.</p>
+    </div>
+
+    <!-- XP Leaderboard -->
+    <div class="leaderboard fade-in">
+      <div class="leaderboard-card">
+        <div class="lb-header">
+          <h3>XP Leaderboard</h3>
+          <span class="badge badge-red">This Week</span>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank gold">1</div>
+          <div class="avatar avatar-red" style="width:36px;height:36px;font-size:13px;">RM</div>
+          <div class="lb-info">
+            <div class="lb-name">Rohan Mehta</div>
+            <div class="lb-stats">12 missions completed</div>
+          </div>
+          <div class="lb-xp">2,450 XP</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank silver">2</div>
+          <div class="avatar avatar-blue" style="width:36px;height:36px;font-size:13px;">PG</div>
+          <div class="lb-info">
+            <div class="lb-name">Priya Gupta</div>
+            <div class="lb-stats">10 missions completed</div>
+          </div>
+          <div class="lb-xp">2,120 XP</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank bronze">3</div>
+          <div class="avatar avatar-green" style="width:36px;height:36px;font-size:13px;">AS</div>
+          <div class="lb-info">
+            <div class="lb-name">Aryan Sharma</div>
+            <div class="lb-stats">8 missions completed</div>
+          </div>
+          <div class="lb-xp">1,870 XP</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank">4</div>
+          <div class="avatar avatar-yellow" style="width:36px;height:36px;font-size:13px;">NK</div>
+          <div class="lb-info">
+            <div class="lb-name">Neha Kapoor</div>
+            <div class="lb-stats">7 missions completed</div>
+          </div>
+          <div class="lb-xp">1,640 XP</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank">5</div>
+          <div class="avatar avatar-red" style="width:36px;height:36px;font-size:13px;">VT</div>
+          <div class="lb-info">
+            <div class="lb-name">Vikram Thakur</div>
+            <div class="lb-stats">6 missions completed</div>
+          </div>
+          <div class="lb-xp">1,400 XP</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-pill active">All Missions</button>
+      <button class="filter-pill">Beginner</button>
+      <button class="filter-pill">Intermediate</button>
+      <button class="filter-pill">Advanced</button>
+      <button class="filter-pill">Legendary</button>
+    </div>
+
+    <div class="missions-grid">
+
+      <!-- Mission 1 -->
+      <div class="mission-card fade-in">
+        <div class="mc-top">
+          <span class="mc-name">First Commit</span>
+          <span class="mc-xp"><i class="ti ti-bolt"></i> 50 XP</span>
+        </div>
+        <div class="mc-category"><i class="ti ti-git-commit"></i> Getting Started</div>
+        <p class="mc-desc">Push your first commit to any project on Attack on Code. Set up your dev environment and make it happen.</p>
+        <div class="mc-difficulty">
+          <div class="mc-difficulty-label">Difficulty</div>
+          <div class="mc-difficulty-dots">
+            <div class="mc-dot filled"></div><div class="mc-dot"></div><div class="mc-dot"></div><div class="mc-dot"></div><div class="mc-dot"></div>
+          </div>
+        </div>
+        <div class="mc-footer">
+          <span class="mc-completions"><i class="ti ti-check"></i> 312 completions</span>
+          <button class="btn-start"><i class="ti ti-player-play"></i> Start</button>
+        </div>
+      </div>
+
+      <!-- Mission 2 -->
+      <div class="mission-card fade-in">
+        <div class="mc-top">
+          <span class="mc-name">Team Player</span>
+          <span class="mc-xp"><i class="ti ti-bolt"></i> 100 XP</span>
+        </div>
+        <div class="mc-category"><i class="ti ti-users-group"></i> Collaboration</div>
+        <p class="mc-desc">Join a team and contribute to a shared project. Review at least one PR from a teammate.</p>
+        <div class="mc-difficulty">
+          <div class="mc-difficulty-label">Difficulty</div>
+          <div class="mc-difficulty-dots">
+            <div class="mc-dot filled"></div><div class="mc-dot filled"></div><div class="mc-dot"></div><div class="mc-dot"></div><div class="mc-dot"></div>
+          </div>
+        </div>
+        <div class="mc-footer">
+          <span class="mc-completions"><i class="ti ti-check"></i> 189 completions</span>
+          <button class="btn-start"><i class="ti ti-player-play"></i> Start</button>
+        </div>
+      </div>
+
+      <!-- Mission 3 -->
+      <div class="mission-card fade-in">
+        <div class="mc-top">
+          <span class="mc-name">Bug Hunter</span>
+          <span class="mc-xp"><i class="ti ti-bolt"></i> 150 XP</span>
+        </div>
+        <div class="mc-category"><i class="ti ti-bug"></i> Quality Assurance</div>
+        <p class="mc-desc">Find and report 3 bugs in any community project. Submit detailed bug reports with reproduction steps.</p>
+        <div class="mc-difficulty">
+          <div class="mc-difficulty-label">Difficulty</div>
+          <div class="mc-difficulty-dots">
+            <div class="mc-dot filled"></div><div class="mc-dot filled"></div><div class="mc-dot filled"></div><div class="mc-dot"></div><div class="mc-dot"></div>
+          </div>
+        </div>
+        <div class="mc-footer">
+          <span class="mc-completions"><i class="ti ti-check"></i> 94 completions</span>
+          <button class="btn-start"><i class="ti ti-player-play"></i> Start</button>
+        </div>
+      </div>
+
+      <!-- Mission 4 -->
+      <div class="mission-card fade-in">
+        <div class="mc-top">
+          <span class="mc-name">Design System Hero</span>
+          <span class="mc-xp"><i class="ti ti-bolt"></i> 200 XP</span>
+        </div>
+        <div class="mc-category"><i class="ti ti-brush"></i> Design</div>
+        <p class="mc-desc">Create a reusable component library for a project. Document at least 5 components with usage examples.</p>
+        <div class="mc-difficulty">
+          <div class="mc-difficulty-label">Difficulty</div>
+          <div class="mc-difficulty-dots">
+            <div class="mc-dot filled"></div><div class="mc-dot filled"></div><div class="mc-dot filled"></div><div class="mc-dot filled"></div><div class="mc-dot"></div>
+          </div>
+        </div>
+        <div class="mc-footer">
+          <span class="mc-completions"><i class="ti ti-check"></i> 42 completions</span>
+          <button class="btn-start"><i class="ti ti-player-play"></i> Start</button>
+        </div>
+      </div>
+
+      <!-- Mission 5: Legendary -->
+      <div class="mission-card legendary fade-in">
+        <div class="mc-top">
+          <span class="mc-name">Hackathon Champion</span>
+          <span class="mc-xp"><i class="ti ti-bolt"></i> 500 XP</span>
+        </div>
+        <div class="mc-category"><i class="ti ti-trophy"></i> Legendary Mission</div>
+        <p class="mc-desc">Lead a team to a top-3 finish in any registered hackathon. Coordinate team strategy, delegate tasks, and ship a polished project.</p>
+        <div class="mc-difficulty">
+          <div class="mc-difficulty-label">Difficulty</div>
+          <div class="mc-difficulty-dots">
+            <div class="mc-dot filled"></div><div class="mc-dot filled"></div><div class="mc-dot filled"></div><div class="mc-dot filled"></div><div class="mc-dot filled"></div>
+          </div>
+        </div>
+        <div class="mc-footer">
+          <span class="mc-completions"><i class="ti ti-check"></i> 8 completions</span>
+          <button class="btn-start"><i class="ti ti-player-play"></i> Accept</button>
+        </div>
+      </div>
+
+      <!-- Mission 6 -->
+      <div class="mission-card fade-in">
+        <div class="mc-top">
+          <span class="mc-name">Open Source Pioneer</span>
+          <span class="mc-xp"><i class="ti ti-bolt"></i> 250 XP</span>
+        </div>
+        <div class="mc-category"><i class="ti ti-git-pull-request"></i> Open Source</div>
+        <p class="mc-desc">Get 5 pull requests merged into open-source projects within the community. Quality over quantity.</p>
+        <div class="mc-difficulty">
+          <div class="mc-difficulty-label">Difficulty</div>
+          <div class="mc-difficulty-dots">
+            <div class="mc-dot filled"></div><div class="mc-dot filled"></div><div class="mc-dot filled"></div><div class="mc-dot filled"></div><div class="mc-dot"></div>
+          </div>
+        </div>
+        <div class="mc-footer">
+          <span class="mc-completions"><i class="ti ti-check"></i> 36 completions</span>
+          <button class="btn-start"><i class="ti ti-player-play"></i> Start</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <div class="footer-brand-icon"><i class="ti ti-code"></i></div>
+            <span class="footer-brand-name">Attack on Code</span>
+          </div>
+          <p class="footer-desc">The collaborative ecosystem for student builders.</p>
+        </div>
+        <div>
+          <h5 class="footer-title">Platform</h5>
+          <ul class="footer-links">
+            <li><a href="builders.html">Builders</a></li><li><a href="teams.html">Teams</a></li>
+            <li><a href="hackathons.html">Hackathons</a></li><li><a href="projects.html">Projects</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="footer-title">Community</h5>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li><li><a href="missions.html">Missions</a></li>
+            <li><a href="community.html">Community</a></li><li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="footer-title">Connect</h5>
+          <ul class="footer-links">
+            <li><a href="#">Discord</a></li><li><a href="#">GitHub</a></li>
+            <li><a href="#">Twitter/X</a></li><li><a href="#">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Attack on Code. All rights reserved.</span>
+        <div class="footer-social">
+          <a href="#"><i class="ti ti-brand-discord"></i></a>
+          <a href="#"><i class="ti ti-brand-github"></i></a>
+          <a href="#"><i class="ti ti-brand-x"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

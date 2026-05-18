@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teams — Attack on Code</title>
+  <meta name="description" content="Browse open teams, apply to join, or create your own. Find the right crew for your next hackathon.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 20px;
+      padding-bottom: 80px;
+    }
+    .team-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .team-card:hover { border-color: var(--border-dark); box-shadow: var(--shadow-md); }
+    .tc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+    .tc-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+    .tc-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 18px; }
+    .tc-needs { margin-bottom: 18px; }
+    .tc-needs-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .tc-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-light); padding-top: 18px; margin-top: auto; }
+    .tc-members { display: flex; align-items: center; gap: 10px; }
+    .tc-count { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+    .tc-event { font-size: 12px; color: var(--text-secondary); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+    .tc-event i { font-size: 16px; }
+    .btn-apply {
+      width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--white); font-size: 14px; font-weight: 600; color: var(--text-primary);
+      cursor: pointer; transition: var(--transition-fast); margin-top: 16px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-apply:hover { background: var(--red); color: white; border-color: var(--red); }
+    .btn-apply.disabled { opacity: 0.4; cursor: default; pointer-events: none; }
+
+    @media (max-width: 600px) {
+      .team-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="index.html" class="nav-logo">
+          <div class="nav-logo-icon"><i class="ti ti-code"></i></div>
+          <span class="nav-logo-text">Attack on Code</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="builders.html">Builders</a>
+          <a href="teams.html" class="active">Teams</a>
+          <a href="hackathons.html">Hackathons</a>
+          <a href="projects.html">Projects</a>
+          <a href="missions.html">Missions</a>
+          <a href="community.html">Community</a>
+          <a href="about.html">About</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <a href="login.html" class="btn btn-ghost">Log in</a>
+        <a href="#" class="btn btn-primary" data-modal="create-team-modal"><i class="ti ti-plus"></i> Create Team</a>
+        <button class="nav-mobile-toggle" id="nav-mobile-toggle"><i class="ti ti-menu-2"></i></button>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-mobile-menu" id="nav-mobile-menu">
+    <a href="index.html">Home</a><a href="builders.html">Builders</a><a href="teams.html">Teams</a>
+    <a href="hackathons.html">Hackathons</a><a href="projects.html">Projects</a><a href="missions.html">Missions</a>
+    <a href="community.html">Community</a><a href="about.html">About</a>
+    <a href="login.html">Log in</a><a href="register.html">Join Community</a>
+  </div>
+
+  <div class="container">
+    <div class="page-header">
+      <div class="page-header-row">
+        <div>
+          <h1>Team Hub</h1>
+          <p>Browse open teams, apply to join, or create your own. Find the right crew for your next hackathon.</p>
+        </div>
+        <a href="#" class="btn btn-primary btn-lg" data-modal="create-team-modal"><i class="ti ti-plus"></i> Create Team</a>
+      </div>
+    </div>
+
+    <div class="filter-bar" data-single="true">
+      <div class="search-box">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="Search teams...">
+      </div>
+      <button class="filter-pill active">Recruiting</button>
+      <button class="filter-pill">All Teams</button>
+      <button class="filter-pill">Needs Frontend</button>
+      <button class="filter-pill">Needs Backend</button>
+      <button class="filter-pill">Needs Designer</button>
+      <button class="filter-pill">Needs ML Engineer</button>
+    </div>
+
+    <div class="team-grid">
+
+      <!-- Team 1: QuantumForge -->
+      <div class="team-card recruiting fade-in">
+        <div class="tc-top">
+          <span class="tc-name">QuantumForge</span>
+          <span class="badge badge-green">Recruiting</span>
+        </div>
+        <p class="tc-desc">AI-powered disaster prediction platform using satellite imagery and real-time weather data.</p>
+        <div class="tags" style="margin-bottom:18px;">
+          <span class="tag">Next.js</span><span class="tag">FastAPI</span><span class="tag">PyTorch</span><span class="tag">PostgreSQL</span>
+        </div>
+        <div class="tc-needs">
+          <div class="tc-needs-label">Open Positions</div>
+          <span class="need-pill"><i class="ti ti-brush"></i> UI/UX Designer</span>
+          <span class="need-pill"><i class="ti ti-server"></i> Backend Dev</span>
+        </div>
+        <div class="tc-footer">
+          <div class="tc-members">
+            <div class="avatar-stack">
+              <div class="avatar-circle av-red">AS</div>
+              <div class="avatar-circle av-blue">PG</div>
+              <div class="avatar-circle av-green">RM</div>
+              <div class="avatar-circle av-yellow">NK</div>
+            </div>
+            <span class="tc-count">4/6</span>
+          </div>
+          <span class="tc-event"><i class="ti ti-trophy"></i> SIH 2026</span>
+        </div>
+        <button class="btn-apply"><i class="ti ti-arrow-right"></i> Apply to Join</button>
+      </div>
+
+      <!-- Team 2: NeuralPulse -->
+      <div class="team-card recruiting fade-in">
+        <div class="tc-top">
+          <span class="tc-name">NeuralPulse</span>
+          <span class="badge badge-green">Recruiting</span>
+        </div>
+        <p class="tc-desc">Real-time sentiment analysis dashboard for campus feedback and mental health monitoring.</p>
+        <div class="tags" style="margin-bottom:18px;">
+          <span class="tag">React</span><span class="tag">Python</span><span class="tag">Transformers</span><span class="tag">MongoDB</span>
+        </div>
+        <div class="tc-needs">
+          <div class="tc-needs-label">Open Positions</div>
+          <span class="need-pill"><i class="ti ti-code"></i> Frontend Dev</span>
+        </div>
+        <div class="tc-footer">
+          <div class="tc-members">
+            <div class="avatar-stack">
+              <div class="avatar-circle av-blue">RK</div>
+              <div class="avatar-circle av-green">SM</div>
+              <div class="avatar-circle av-yellow">DL</div>
+            </div>
+            <span class="tc-count">3/4</span>
+          </div>
+          <span class="tc-event"><i class="ti ti-trophy"></i> HackCBS 7.0</span>
+        </div>
+        <button class="btn-apply"><i class="ti ti-arrow-right"></i> Apply to Join</button>
+      </div>
+
+      <!-- Team 3: CodeForge -->
+      <div class="team-card fade-in">
+        <div class="tc-top">
+          <span class="tc-name">CodeForge</span>
+          <span class="badge badge-yellow">Forming</span>
+        </div>
+        <p class="tc-desc">Open-source study collaboration platform with peer-to-peer video, shared notes, and task boards.</p>
+        <div class="tags" style="margin-bottom:18px;">
+          <span class="tag">Next.js</span><span class="tag">WebRTC</span><span class="tag">Supabase</span><span class="tag">Tailwind</span>
+        </div>
+        <div class="tc-needs">
+          <div class="tc-needs-label">Open Positions</div>
+          <span class="need-pill"><i class="ti ti-device-mobile"></i> Mobile Dev</span>
+          <span class="need-pill"><i class="ti ti-brush"></i> Designer</span>
+        </div>
+        <div class="tc-footer">
+          <div class="tc-members">
+            <div class="avatar-stack">
+              <div class="avatar-circle av-red">VT</div>
+              <div class="avatar-circle av-blue">AK</div>
+            </div>
+            <span class="tc-count">2/5</span>
+          </div>
+          <span class="tc-event"><i class="ti ti-trophy"></i> DevHack Delhi</span>
+        </div>
+        <button class="btn-apply"><i class="ti ti-arrow-right"></i> Apply to Join</button>
+      </div>
+
+      <!-- Team 4: AgriVision -->
+      <div class="team-card fade-in">
+        <div class="tc-top">
+          <span class="tc-name">AgriVision</span>
+          <span class="badge badge-blue">Complete</span>
+        </div>
+        <p class="tc-desc">Drone-based crop health monitoring system with ML-powered disease detection and yield prediction.</p>
+        <div class="tags" style="margin-bottom:18px;">
+          <span class="tag">Python</span><span class="tag">TensorFlow</span><span class="tag">Flutter</span><span class="tag">Firebase</span>
+        </div>
+        <div class="tc-footer">
+          <div class="tc-members">
+            <div class="avatar-stack">
+              <div class="avatar-circle av-green">SD</div>
+              <div class="avatar-circle av-yellow">KS</div>
+              <div class="avatar-circle av-red">MA</div>
+              <div class="avatar-circle av-blue">JP</div>
+              <div class="avatar-circle av-green">RL</div>
+            </div>
+            <span class="tc-count">5/5</span>
+          </div>
+          <span class="tc-event"><i class="ti ti-trophy"></i> SIH 2026</span>
+        </div>
+        <button class="btn-apply disabled">Team Full</button>
+      </div>
+
+      <!-- Team 5: SyntaxStorm -->
+      <div class="team-card recruiting fade-in">
+        <div class="tc-top">
+          <span class="tc-name">SyntaxStorm</span>
+          <span class="badge badge-green">Recruiting</span>
+        </div>
+        <p class="tc-desc">AI-powered code review tool that identifies bugs, suggests refactors, and generates test cases automatically.</p>
+        <div class="tags" style="margin-bottom:18px;">
+          <span class="tag">Go</span><span class="tag">LangChain</span><span class="tag">React</span><span class="tag">Redis</span>
+        </div>
+        <div class="tc-needs">
+          <div class="tc-needs-label">Open Positions</div>
+          <span class="need-pill"><i class="ti ti-brain"></i> ML Engineer</span>
+          <span class="need-pill"><i class="ti ti-code"></i> Frontend Dev</span>
+        </div>
+        <div class="tc-footer">
+          <div class="tc-members">
+            <div class="avatar-stack">
+              <div class="avatar-circle av-yellow">PD</div>
+              <div class="avatar-circle av-red">NR</div>
+              <div class="avatar-circle av-blue">AM</div>
+            </div>
+            <span class="tc-count">3/5</span>
+          </div>
+          <span class="tc-event"><i class="ti ti-trophy"></i> Hack the North</span>
+        </div>
+        <button class="btn-apply"><i class="ti ti-arrow-right"></i> Apply to Join</button>
+      </div>
+
+      <!-- Team 6: EcoTrack -->
+      <div class="team-card fade-in">
+        <div class="tc-top">
+          <span class="tc-name">EcoTrack</span>
+          <span class="badge badge-yellow">Forming</span>
+        </div>
+        <p class="tc-desc">Carbon footprint tracker for university campuses with gamification and leaderboards.</p>
+        <div class="tags" style="margin-bottom:18px;">
+          <span class="tag">Vue.js</span><span class="tag">Django</span><span class="tag">PostgreSQL</span><span class="tag">D3.js</span>
+        </div>
+        <div class="tc-needs">
+          <div class="tc-needs-label">Open Positions</div>
+          <span class="need-pill"><i class="ti ti-server"></i> Backend Dev</span>
+          <span class="need-pill"><i class="ti ti-brush"></i> UI Designer</span>
+          <span class="need-pill"><i class="ti ti-device-mobile"></i> Mobile Dev</span>
+        </div>
+        <div class="tc-footer">
+          <div class="tc-members">
+            <div class="avatar-stack">
+              <div class="avatar-circle av-green">TK</div>
+            </div>
+            <span class="tc-count">1/4</span>
+          </div>
+          <span class="tc-event"><i class="ti ti-trophy"></i> GreenHacks 2026</span>
+        </div>
+        <button class="btn-apply"><i class="ti ti-arrow-right"></i> Apply to Join</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Create Team Modal -->
+  <div class="modal-overlay" id="create-team-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Create Team</h2>
+        <button class="modal-close" aria-label="Close"><i class="ti ti-x"></i></button>
+      </div>
+      <form>
+        <div class="form-group">
+          <label class="form-label">Team Name</label>
+          <input class="form-input" type="text" placeholder="e.g. QuantumForge">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-input" rows="3" placeholder="What will your team build?" style="resize:vertical;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Hackathon</label>
+          <select class="form-input"><option>SIH 2026</option><option>HackCBS 7.0</option><option>DevHack Delhi</option><option>Hack the North</option><option>Other</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tech Stack</label>
+          <div class="chip-select">
+            <span class="chip-option">React</span><span class="chip-option">Next.js</span><span class="chip-option">Python</span>
+            <span class="chip-option">Node.js</span><span class="chip-option">Flutter</span><span class="chip-option">Go</span>
+            <span class="chip-option">PyTorch</span><span class="chip-option">Firebase</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Open Roles</label>
+          <div class="chip-select">
+            <span class="chip-option">Frontend Dev</span><span class="chip-option">Backend Dev</span>
+            <span class="chip-option">ML Engineer</span><span class="chip-option">UI Designer</span>
+            <span class="chip-option">Mobile Dev</span><span class="chip-option">DevOps</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Members</label>
+          <select class="form-input"><option>4</option><option>5</option><option selected>6</option><option>8</option></select>
+        </div>
+        <button type="button" class="btn btn-primary btn-full btn-lg" onclick="this.closest('.modal-overlay').classList.remove('open');showToast('Team created successfully!','success');"><i class="ti ti-plus"></i> Create Team</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <div class="footer-brand-icon"><i class="ti ti-code"></i></div>
+            <span class="footer-brand-name">Attack on Code</span>
+          </div>
+          <p class="footer-desc">The collaborative ecosystem for student builders.</p>
+        </div>
+        <div>
+          <h5 class="footer-title">Platform</h5>
+          <ul class="footer-links">
+            <li><a href="builders.html">Builders</a></li><li><a href="teams.html">Teams</a></li>
+            <li><a href="hackathons.html">Hackathons</a></li><li><a href="projects.html">Projects</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="footer-title">Community</h5>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li><li><a href="missions.html">Missions</a></li>
+            <li><a href="community.html">Community</a></li><li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="footer-title">Connect</h5>
+          <ul class="footer-links">
+            <li><a href="#">Discord</a></li><li><a href="#">GitHub</a></li>
+            <li><a href="#">Twitter/X</a></li><li><a href="#">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Attack on Code. All rights reserved.</span>
+        <div class="footer-social">
+          <a href="#"><i class="ti ti-brand-discord"></i></a>
+          <a href="#"><i class="ti ti-brand-github"></i></a>
+          <a href="#"><i class="ti ti-brand-x"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

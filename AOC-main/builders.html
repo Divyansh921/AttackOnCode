@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Builders — Attack on Code</title>
+  <meta name="description" content="Find developers, designers, ML engineers, and researchers to build with. Filter by skill, availability, or hackathon interest.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .builder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+      padding-bottom: 80px;
+    }
+    .builder-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .builder-card:hover { border-color: var(--border-dark); box-shadow: var(--shadow-md); }
+    .bc-top { display: flex; gap: 14px; margin-bottom: 16px; }
+    .bc-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 16px; flex-shrink: 0;
+    }
+    .bc-info { flex: 1; }
+    .bc-name { font-size: 15px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .bc-status-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .bc-status-dot.online { background: var(--green); animation: pulse-dot 2s ease-in-out infinite; }
+    .bc-status-dot.busy { background: var(--red); }
+    .bc-status-dot.exploring { background: var(--yellow); }
+    .bc-role { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+    .bc-badge-area { flex-shrink: 0; }
+    .bc-stats { display: flex; gap: 20px; margin-bottom: 16px; }
+    .bc-stat-val { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+    .bc-stat-label { font-size: 10px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .bc-action { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-light); }
+    .btn-invite {
+      width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--white); font-size: 13px; font-weight: 600; color: var(--text-primary);
+      cursor: pointer; transition: var(--transition-fast);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-invite:hover { background: var(--red); color: white; border-color: var(--red); }
+    .btn-invite i { font-size: 16px; }
+
+    .results-count { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+
+    @media (max-width: 600px) {
+      .builder-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="index.html" class="nav-logo">
+          <div class="nav-logo-icon"><i class="ti ti-code"></i></div>
+          <span class="nav-logo-text">Attack on Code</span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="builders.html" class="active">Builders</a>
+          <a href="teams.html">Teams</a>
+          <a href="hackathons.html">Hackathons</a>
+          <a href="projects.html">Projects</a>
+          <a href="missions.html">Missions</a>
+          <a href="community.html">Community</a>
+          <a href="about.html">About</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <a href="login.html" class="btn btn-ghost">Log in</a>
+        <a href="register.html" class="btn btn-primary">Join Community</a>
+        <button class="nav-mobile-toggle" id="nav-mobile-toggle"><i class="ti ti-menu-2"></i></button>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-mobile-menu" id="nav-mobile-menu">
+    <a href="index.html">Home</a><a href="builders.html">Builders</a><a href="teams.html">Teams</a>
+    <a href="hackathons.html">Hackathons</a><a href="projects.html">Projects</a><a href="missions.html">Missions</a>
+    <a href="community.html">Community</a><a href="about.html">About</a>
+    <a href="login.html">Log in</a><a href="register.html">Join Community</a>
+  </div>
+
+  <div class="container">
+    <div class="page-header">
+      <div class="page-header-row">
+        <div>
+          <h1>Builder Directory</h1>
+          <p>Find developers, designers, and researchers to build with. Filter by skill, availability, or hackathon interest.</p>
+        </div>
+        <span class="badge badge-neutral" style="font-size:13px;padding:8px 16px;">1,240+ Builders</span>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search-box">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="Search builders by name or skill...">
+      </div>
+      <button class="filter-pill active"><span class="live-dot" style="width:6px;height:6px;"></span> Looking for Team</button>
+      <button class="filter-pill">Frontend</button>
+      <button class="filter-pill">Backend</button>
+      <button class="filter-pill">ML / AI</button>
+      <button class="filter-pill">UI/UX</button>
+      <button class="filter-pill">Mobile</button>
+      <button class="filter-pill">DevOps</button>
+    </div>
+
+    <div class="results-count">Showing 6 builders</div>
+
+    <div class="builder-grid stagger-fade">
+      <!-- Builder 1 -->
+      <div class="builder-card stagger-item">
+        <div class="bc-top">
+          <div class="bc-avatar avatar-red bc-avatar-glow">AS</div>
+          <div class="bc-info">
+            <div class="bc-name">Aryan Sharma <span class="bc-status-dot online"></span></div>
+            <div class="bc-role">Frontend Engineer · React, Next.js</div>
+            <div class="bc-college">DTU, Delhi</div>
+          </div>
+          <div class="bc-badge-area"><span class="badge badge-green badge-shimmer">Looking for Team</span></div>
+        </div>
+        <div class="tags" style="margin-bottom:16px;">
+          <span class="tag">React</span><span class="tag">Next.js</span><span class="tag">TypeScript</span><span class="tag">Tailwind</span>
+        </div>
+        <div class="bc-stats">
+          <div><div class="bc-stat-val">3</div><div class="bc-stat-label">Hackathons</div></div>
+          <div><div class="bc-stat-val">7</div><div class="bc-stat-label">Projects</div></div>
+          <div><div class="bc-stat-val">31</div><div class="bc-stat-label">PRs</div></div>
+          <div><div class="bc-stat-val">820</div><div class="bc-stat-label">Score</div></div>
+        </div>
+        <div class="bc-actions">
+          <button class="btn btn-outline btn-sm" data-modal="builder-profile-modal"><i class="ti ti-eye"></i> View Profile</button>
+          <button class="btn btn-primary btn-sm btn-invite"><i class="ti ti-send"></i> Invite</button>
+        </div>
+      </div>
+
+      <!-- Builder 2 -->
+      <div class="builder-card stagger-item">
+        <div class="bc-top">
+          <div class="bc-avatar avatar-blue bc-avatar-glow">PG</div>
+          <div class="bc-info">
+            <div class="bc-name">Priya Gupta <span class="bc-status-dot online"></span></div>
+            <div class="bc-role">ML Engineer · PyTorch, Python</div>
+            <div class="bc-college">IIIT Hyderabad</div>
+          </div>
+          <div class="bc-badge-area"><span class="badge badge-green badge-shimmer">Looking for Team</span></div>
+        </div>
+        <div class="tags" style="margin-bottom:16px;">
+          <span class="tag">Python</span><span class="tag">PyTorch</span><span class="tag">NLP</span><span class="tag">LangChain</span>
+        </div>
+        <div class="bc-stats">
+          <div><div class="bc-stat-val">5</div><div class="bc-stat-label">Hackathons</div></div>
+          <div><div class="bc-stat-val">9</div><div class="bc-stat-label">Projects</div></div>
+          <div><div class="bc-stat-val">44</div><div class="bc-stat-label">PRs</div></div>
+          <div><div class="bc-stat-val">1,120</div><div class="bc-stat-label">Score</div></div>
+        </div>
+        <div class="bc-actions">
+          <button class="btn btn-outline btn-sm"><i class="ti ti-eye"></i> View Profile</button>
+          <button class="btn btn-primary btn-sm btn-invite"><i class="ti ti-send"></i> Invite</button>
+        </div>
+      </div>
+
+      <!-- Builder 3 -->
+      <div class="builder-card stagger-item">
+        <div class="bc-top">
+          <div class="bc-avatar avatar-green bc-avatar-glow">RM</div>
+          <div class="bc-info">
+            <div class="bc-name">Rohan Mehta <span class="bc-status-dot exploring"></span></div>
+            <div class="bc-role">Full-Stack · Node.js, Go</div>
+            <div class="bc-college">NIT Trichy</div>
+          </div>
+          <div class="bc-badge-area"><span class="badge badge-yellow">Exploring Ideas</span></div>
+        </div>
+        <div class="tags" style="margin-bottom:16px;">
+          <span class="tag">Node.js</span><span class="tag">Go</span><span class="tag">PostgreSQL</span><span class="tag">Docker</span>
+        </div>
+        <div class="bc-stats">
+          <div><div class="bc-stat-val">6</div><div class="bc-stat-label">Hackathons</div></div>
+          <div><div class="bc-stat-val">12</div><div class="bc-stat-label">Projects</div></div>
+          <div><div class="bc-stat-val">68</div><div class="bc-stat-label">PRs</div></div>
+          <div><div class="bc-stat-val">1,450</div><div class="bc-stat-label">Score</div></div>
+        </div>
+        <div class="bc-actions">
+          <button class="btn btn-outline btn-sm"><i class="ti ti-eye"></i> View Profile</button>
+          <button class="btn btn-primary btn-sm btn-invite"><i class="ti ti-send"></i> Invite</button>
+        </div>
+      </div>
+
+      <!-- Builder 4 -->
+      <div class="builder-card stagger-item">
+        <div class="bc-top">
+          <div class="bc-avatar avatar-yellow">NK</div>
+          <div class="bc-info">
+            <div class="bc-name">Neha Kapoor <span class="bc-status-dot online"></span></div>
+            <div class="bc-role">UI/UX Designer · Figma</div>
+          </div>
+          <div class="bc-badge-area"><span class="badge badge-green">Looking for Team</span></div>
+        </div>
+        <div class="tags" style="margin-bottom:16px;">
+          <span class="tag">Figma</span><span class="tag">UI/UX</span><span class="tag">Prototyping</span><span class="tag">Design Systems</span>
+        </div>
+        <div class="bc-stats">
+          <div><div class="bc-stat-val">2</div><div class="bc-stat-label">Hackathons</div></div>
+          <div><div class="bc-stat-val">5</div><div class="bc-stat-label">Projects</div></div>
+          <div><div class="bc-stat-val">12</div><div class="bc-stat-label">PRs</div></div>
+          <div><div class="bc-stat-val">640</div><div class="bc-stat-label">Score</div></div>
+        </div>
+        <div class="bc-action"><button class="btn-invite"><i class="ti ti-send"></i> Invite to Team</button></div>
+      </div>
+
+      <!-- Builder 5 -->
+      <div class="builder-card stagger-item">
+        <div class="bc-top">
+          <div class="bc-avatar avatar-red">VT</div>
+          <div class="bc-info">
+            <div class="bc-name">Vikram Thakur <span class="bc-status-dot busy"></span></div>
+            <div class="bc-role">Backend · Rust, AWS</div>
+          </div>
+          <div class="bc-badge-area"><span class="badge badge-red">Busy</span></div>
+        </div>
+        <div class="tags" style="margin-bottom:16px;">
+          <span class="tag">Rust</span><span class="tag">AWS</span><span class="tag">Kubernetes</span><span class="tag">gRPC</span>
+        </div>
+        <div class="bc-stats">
+          <div><div class="bc-stat-val">8</div><div class="bc-stat-label">Hackathons</div></div>
+          <div><div class="bc-stat-val">15</div><div class="bc-stat-label">Projects</div></div>
+          <div><div class="bc-stat-val">92</div><div class="bc-stat-label">PRs</div></div>
+          <div><div class="bc-stat-val">1,880</div><div class="bc-stat-label">Score</div></div>
+        </div>
+        <div class="bc-action"><button class="btn-invite"><i class="ti ti-eye"></i> View Profile</button></div>
+      </div>
+
+      <!-- Builder 6 -->
+      <div class="builder-card stagger-item">
+        <div class="bc-top">
+          <div class="bc-avatar avatar-blue">SD</div>
+          <div class="bc-info">
+            <div class="bc-name">Shreya Das <span class="bc-status-dot online"></span></div>
+            <div class="bc-role">Mobile Dev · Flutter, Firebase</div>
+          </div>
+          <div class="bc-badge-area"><span class="badge badge-green">Looking for Team</span></div>
+        </div>
+        <div class="tags" style="margin-bottom:16px;">
+          <span class="tag">Flutter</span><span class="tag">Dart</span><span class="tag">Firebase</span><span class="tag">REST APIs</span>
+        </div>
+        <div class="bc-stats">
+          <div><div class="bc-stat-val">4</div><div class="bc-stat-label">Hackathons</div></div>
+          <div><div class="bc-stat-val">8</div><div class="bc-stat-label">Projects</div></div>
+          <div><div class="bc-stat-val">27</div><div class="bc-stat-label">PRs</div></div>
+          <div><div class="bc-stat-val">940</div><div class="bc-stat-label">Score</div></div>
+        </div>
+        <div class="bc-action"><button class="btn-invite"><i class="ti ti-send"></i> Invite to Team</button></div>
+      </div>
+
+      <!-- Builder 7 -->
+      <div class="builder-card fade-in">
+        <div class="bc-top">
+          <div class="bc-avatar avatar-green">AK</div>
+          <div class="bc-info">
+            <div class="bc-name">Ananya Krishnan <span class="bc-status-dot online"></span></div>
+            <div class="bc-role">Data Science · Python, R</div>
+          </div>
+          <div class="bc-badge-area"><span class="badge badge-green">Looking for Team</span></div>
+        </div>
+        <div class="tags" style="margin-bottom:16px;">
+          <span class="tag">Python</span><span class="tag">Pandas</span><span class="tag">Scikit-learn</span><span class="tag">SQL</span>
+        </div>
+        <div class="bc-stats">
+          <div><div class="bc-stat-val">2</div><div class="bc-stat-label">Hackathons</div></div>
+          <div><div class="bc-stat-val">4</div><div class="bc-stat-label">Projects</div></div>
+          <div><div class="bc-stat-val">15</div><div class="bc-stat-label">PRs</div></div>
+          <div><div class="bc-stat-val">420</div><div class="bc-stat-label">Score</div></div>
+        </div>
+        <div class="bc-action"><button class="btn-invite"><i class="ti ti-send"></i> Invite to Team</button></div>
+      </div>
+
+      <!-- Builder 8 -->
+      <div class="builder-card fade-in">
+        <div class="bc-top">
+          <div class="bc-avatar avatar-yellow">KS</div>
+          <div class="bc-info">
+            <div class="bc-name">Kabir Singh <span class="bc-status-dot exploring"></span></div>
+            <div class="bc-role">DevOps · AWS, Terraform</div>
+          </div>
+          <div class="bc-badge-area"><span class="badge badge-yellow">Exploring Ideas</span></div>
+        </div>
+        <div class="tags" style="margin-bottom:16px;">
+          <span class="tag">AWS</span><span class="tag">Terraform</span><span class="tag">CI/CD</span><span class="tag">Linux</span>
+        </div>
+        <div class="bc-stats">
+          <div><div class="bc-stat-val">3</div><div class="bc-stat-label">Hackathons</div></div>
+          <div><div class="bc-stat-val">6</div><div class="bc-stat-label">Projects</div></div>
+          <div><div class="bc-stat-val">35</div><div class="bc-stat-label">PRs</div></div>
+          <div><div class="bc-stat-val">710</div><div class="bc-stat-label">Score</div></div>
+        </div>
+        <div class="bc-action"><button class="btn-invite"><i class="ti ti-send"></i> Invite to Team</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Builder Profile Modal -->
+  <div class="modal-overlay" id="builder-profile-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Builder Profile</h2>
+        <button class="modal-close" aria-label="Close"><i class="ti ti-x"></i></button>
+      </div>
+      <div style="text-align:center;margin-bottom:24px;">
+        <div class="avatar avatar-red" style="width:72px;height:72px;font-size:24px;margin:0 auto 12px;">AS</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--text-primary);">Aryan Sharma</div>
+        <div style="font-size:14px;color:var(--text-muted);margin-top:4px;">Frontend Engineer · DTU, Delhi</div>
+        <div style="margin-top:8px;"><span class="badge badge-green">Looking for Team</span></div>
+      </div>
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">Passionate frontend developer with 3 years of experience in React ecosystem. Love building polished UIs and contributing to open source. Currently looking for a team for SIH 2026.</p>
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Skills</div>
+        <div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">TypeScript</span><span class="tag">Tailwind</span><span class="tag">Figma</span></div>
+      </div>
+      <div style="display:flex;gap:24px;margin-bottom:20px;">
+        <div><div class="bc-stat-val">3</div><div class="bc-stat-label">Hackathons</div></div>
+        <div><div class="bc-stat-val">7</div><div class="bc-stat-label">Projects</div></div>
+        <div><div class="bc-stat-val">31</div><div class="bc-stat-label">PRs</div></div>
+        <div><div class="bc-stat-val">820</div><div class="bc-stat-label">Score</div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <a href="#" class="btn btn-outline" style="flex:1;"><i class="ti ti-brand-github"></i> GitHub</a>
+        <a href="#" class="btn btn-outline" style="flex:1;"><i class="ti ti-brand-linkedin"></i> LinkedIn</a>
+      </div>
+      <button class="btn btn-primary btn-full btn-invite"><i class="ti ti-send"></i> Send Team Invite</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <div class="footer-brand-icon"><i class="ti ti-code"></i></div>
+            <span class="footer-brand-name">Attack on Code</span>
+          </div>
+          <p class="footer-desc">The collaborative ecosystem for student builders.</p>
+        </div>
+        <div>
+          <h5 class="footer-title">Platform</h5>
+          <ul class="footer-links">
+            <li><a href="builders.html">Builders</a></li><li><a href="teams.html">Teams</a></li>
+            <li><a href="hackathons.html">Hackathons</a></li><li><a href="projects.html">Projects</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="footer-title">Community</h5>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li><li><a href="missions.html">Missions</a></li>
+            <li><a href="community.html">Community</a></li><li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="footer-title">Connect</h5>
+          <ul class="footer-links">
+            <li><a href="#">Discord</a></li><li><a href="#">GitHub</a></li>
+            <li><a href="#">Twitter/X</a></li><li><a href="#">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Attack on Code. All rights reserved.</span>
+        <div class="footer-social">
+          <a href="#"><i class="ti ti-brand-discord"></i></a>
+          <a href="#"><i class="ti ti-brand-github"></i></a>
+          <a href="#"><i class="ti ti-brand-x"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
