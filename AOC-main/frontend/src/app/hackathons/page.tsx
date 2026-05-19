@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useHackathons, useExpressInterest } from '@/hooks/use-data';
 import { format } from 'date-fns';
-
+import Link from 'next/link';
 type HackathonFilter = 'upcoming' | 'ongoing' | 'past';
 
 export default function HackathonsPage() {
@@ -93,11 +93,11 @@ export default function HackathonsPage() {
                     <div className="flex flex-wrap gap-4">
                       <div className="flex items-center gap-2 text-[12px] font-bold text-gray-400">
                         <span className="w-4 h-4 rounded-full bg-gray-50 flex items-center justify-center text-[10px]">👥</span>
-                        {hack._count?.teams || 0} teams forming
+                        {(hack as any)._count?.teams || 0} teams forming
                       </div>
                       <div className="flex items-center gap-2 text-[12px] font-bold text-gray-400">
                         <span className="w-4 h-4 rounded-full bg-gray-50 flex items-center justify-center text-[10px]">🎯</span>
-                        {hack._count?.interests || 0} builders interested
+                        {(hack as any)._count?.interests || 0} builders interested
                       </div>
                       <div className="flex items-center gap-2 text-[12px] font-bold text-gray-400">
                         <span className="w-4 h-4 rounded-full bg-gray-50 flex items-center justify-center text-[10px]">📍</span>

@@ -1,21 +1,21 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { useTeams, useApplyToTeam } from '@/hooks/use-teams';
 import { useSearchParams } from 'next/navigation';
 
-export default function TeamsPage() {
+function TeamsContent() {
   const searchParams = useSearchParams();
   const hackathonId = searchParams.get('hackathonId');
   
   const [filter, setFilter] = useState<string>('recruiting');
-  const { data, isLoading } = useTeams(hackathonId || undefined);
+  const { data, isLoading } = useTeams({ hackathonId: hackathonId || undefined });
   const applyMutation = useApplyToTeam();
 
   const handleApply = async (teamId: string) => {
     try {
-      await applyMutation.mutateAsync({ teamId, role: 'Contributor' });
+      await applyMutation.mutateAsync({ openingId: teamId, message: 'I want to join' });
       alert('Application sent successfully!');
     } catch (err) {
       alert('Failed to send application. You might already be in this team or have a pending application.');
@@ -78,7 +78,7 @@ export default function TeamsPage() {
             ))
           ) : (
             <>
-              {filteredTeams.map((team) => (
+              {filteredTeams.map((team: any) => (
                 <div key={team.id} className="bg-white border rounded-2xl p-7 flex flex-col hover:border-gray-300 hover:shadow-md transition-all group">
                   <div className="flex justify-between items-start mb-4">
                     <span className="font-black text-[18px] tracking-tight group-hover:text-red-600 transition-colors">
@@ -97,12 +97,12 @@ export default function TeamsPage() {
                   </p>
 
                   <div className="flex flex-wrap gap-2 mb-6">
-                    {team.tags?.map((tag, i) => (
+                    {team.tags?.map((tag: string, i: number) => (
                       <span key={i} className="px-2 py-1 bg-gray-50 border border-gray-100 rounded text-[11px] font-semibold text-gray-500">
                         {tag}
                       </span>
                     ))}
-                    {(!team.tags || team.tags.length === 0) && ['React', 'NestJS', 'Prisma'].map((tag, i) => (
+                    {(!team.tags || team.tags.length === 0) && ['React', 'NestJS', 'Prisma'].map((tag: string, i: number) => (
                       <span key={i} className="px-2 py-1 bg-gray-50 border border-gray-100 rounded text-[11px] font-semibold text-gray-500">
                         {tag}
                       </span>
@@ -127,9 +127,9 @@ export default function TeamsPage() {
                   <div className="mt-auto pt-5 border-t flex justify-between items-center">
                     <div className="flex items-center gap-3">
                       <div className="flex -space-x-1.5">
-                        {team.members?.slice(0, 4).map((m, i) => (
+                        {team.members?.slice(0, 4).map((m: any, i: number) => (
                           <div key={i} className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-gray-400">
-                            {m.user.fullName.charAt(0)}
+                            {m.user?.username?.charAt(0) || 'U'}
                           </div>
                         ))}
                       </div>
@@ -168,5 +168,13 @@ export default function TeamsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function TeamsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading teams...</div>}>
+      <TeamsContent />
+    </Suspense>
   );
 }
