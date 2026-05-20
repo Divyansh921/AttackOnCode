@@ -1,0 +1,166 @@
+/* Cinematic Hero CSS - tuned for premium anime intro */
+:root{
+  --bg-1: #050507;
+  --bg-2: #0a0a0e;
+  --text: #f3f3f6;
+  --muted: #b9b6bd;
+  --accent-glow: rgba(220,100,120,0.12);
+}
+
+.hero{
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  background: radial-gradient(1200px 600px at 12% 20%, rgba(18,16,20,0.6), transparent 15%), linear-gradient(180deg,var(--bg-1),var(--bg-2));
+  color: var(--text);
+  padding: clamp(2rem, 5vw, 5rem);
+  overflow: hidden;
+}
+
+.hero-inner{
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hero-copy{
+  flex: 1 1 54%;
+  padding-right: 1.5rem;
+}
+
+/* Quote styles */
+.quote{
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.25rem, 3.2vw, 2.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  will-change: transform, opacity;
+}
+
+.line-container{
+  display: block;
+  margin-bottom: 0.28rem;
+  overflow: hidden;
+}
+
+.char{
+  display: inline-block;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+  font-variant-ligatures: none;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+}
+
+.credit-line{ margin-top: 1rem; }
+.credit-char{ font-weight: 600; color: var(--muted); font-size: 0.95rem; opacity: .98; }
+
+/* Right side: Eren */
+.hero-eren{
+  flex: 0 0 42%;
+  max-width: 540px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  position: relative;
+  pointer-events: none;
+}
+
+.eren-shadow{
+  pointer-events:none;
+  position: absolute;
+  bottom: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72%;
+  height: 42%;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.6), rgba(0,0,0,0));
+  filter: blur(28px) saturate(120%);
+  z-index: 0;
+}
+
+/* rim light element */
+.eren-rim{
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 82%;
+  height: 78%;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 1.05s cubic-bezier(.2,.9,.2,1), transform 1.05s ease;
+  background: radial-gradient(ellipse at 65% 18%, rgba(255,190,160,0.06), transparent 12%);
+}
+.eren-rim.on{ opacity: 1; transform: translateX(-50%) translateY(-6px); }
+
+.eren-img{
+  width: 100%;
+  height: auto;
+  display: block;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 36px 48px rgba(0,0,0,0.72)) saturate(1.02) contrast(1.04);
+  z-index: 2;
+  will-change: transform, opacity, filter;
+  animation: erenFloat 7.2s ease-in-out infinite;
+  animation-delay: 1s;
+  animation-play-state: paused;
+}
+
+@keyframes erenFloat{
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.002); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.eren-img.revealed{ animation-play-state: running; }
+
+/* cinematic vignette + film grain subtlety */
+.hero::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(0,0,0,0.25), transparent 18%), linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12));
+  mix-blend-mode: multiply;
+  z-index: 0;
+}
+
+/* micro grain overlay */
+.hero::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="g"><feTurbulence baseFrequency="0.8" numOctaves="1" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23g)" opacity="0.02"/></svg>');
+  opacity: 0.28;
+  mix-blend-mode: overlay;
+  z-index: 3;
+}
+
+/* responsive */
+@media (max-width: 880px){
+  .hero-inner{ flex-direction: column-reverse; gap: 1.25rem; align-items: center; text-align: center; }
+  .hero-copy{ padding-right: 0; flex-basis: auto; width: 100%; }
+  .hero-eren{ width: 88%; max-width: 420px; margin-bottom: 1rem; }
+  .eren-shadow{ width: 88%; height: 30%; bottom: 3%; filter: blur(18px); }
+  .quote { font-size: clamp(1.05rem, 4.2vw, 1.45rem); }
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .char { transition: none !important; animation: none !important; }
+  .eren-img { animation: none !important; }
+  .eren-rim { transition: none !important; }
+}

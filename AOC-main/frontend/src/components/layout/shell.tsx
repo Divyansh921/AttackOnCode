@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/auth.store';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 
 interface ShellProps {
   children: ReactNode;
@@ -24,6 +24,58 @@ export function Shell({ children }: ShellProps) {
     { label: 'About', href: '/about' },
   ];
 
+  // Animation ref and effect: plays tilt -> move up -> straighten on page reload
+  const animatedRef = useRef<HTMLSpanElement | null>(null);
+
+  useEffect(() => {
+    try {
+      const onReload = (process.env.NEXT_PUBLIC_UI_ANIMATION_ON_RELOAD || 'false') === 'true';
+      if (!onReload || typeof window === 'undefined') return;
+      const navEntries = (performance && (performance.getEntriesByType as any) ? performance.getEntriesByType('navigation') : []);
+      const navType = navEntries && navEntries[0] ? (navEntries[0] as any).type : (performance && (performance as any).navigation ? (performance as any).navigation.type === 1 ? 'reload' : 'navigate' : 'navigate');
+      const isReload = navType === 'reload';
+      if (!isReload) return;
+
+      const el = animatedRef.current;
+      if (!el) return;
+
+      const duration = Number(process.env.NEXT_PUBLIC_UI_ANIMATION_DURATION_MS) || 1200;
+      const tiltDeg = Number(process.env.NEXT_PUBLIC_UI_TEXT_TILT_DEG) || 15;
+      const easing = process.env.NEXT_PUBLIC_UI_ANIMATION_EASING || 'ease-out';
+      const step = Math.max(80, Math.floor(duration / 3));
+
+      // Prepare initial state
+      el.style.transition = `transform ${step}ms ${easing}`;
+      el.style.transform = `rotate(${tiltDeg}deg) translateY(0px)`;
+
+      const t1 = window.setTimeout(() => {
+        // move up while tilted
+        el.style.transition = `transform ${step}ms ${easing}`;
+        el.style.transform = `rotate(${tiltDeg}deg) translateY(-18px)`;
+      }, step);
+
+      const t2 = window.setTimeout(() => {
+        // straighten while staying up
+        el.style.transition = `transform ${step}ms ${easing}`;
+        el.style.transform = `rotate(0deg) translateY(-18px)`;
+      }, step * 2);
+
+      const t3 = window.setTimeout(() => {
+        // settle back to neutral (optional subtle return)
+        el.style.transition = `transform ${Math.floor(step / 2)}ms ${easing}`;
+        el.style.transform = `rotate(0deg) translateY(0px)`;
+      }, step * 3 + 80);
+
+      return () => {
+        window.clearTimeout(t1);
+        window.clearTimeout(t2);
+        window.clearTimeout(t3);
+      };
+    } catch (e) {
+      // noop
+    }
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900 font-inter selection:bg-red-100 selection:text-red-900">
       {/* NAV */}
@@ -33,7 +85,7 @@ export function Shell({ children }: ShellProps) {
             <div className="w-6 h-6 bg-red-600 rounded flex items-center justify-center group-hover:scale-105 transition-transform">
               <span className="text-white text-[12px]">⚔</span>
             </div>
-            <span>Attack on <span className="text-red-600">Code</span></span>
+            <span ref={animatedRef} id="reload-animated-text">Attack on <span className="text-red-600">Code</span></span>
           </Link>
 
           <div className="hidden md:flex items-center gap-1">
