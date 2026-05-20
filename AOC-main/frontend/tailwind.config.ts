@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         inter: ["Inter", "sans-serif"],
+        cinzel: ["var(--font-cinzel)", "serif"],
       },
     },
   },
